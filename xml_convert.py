@@ -1,9 +1,14 @@
 import re
+import uuid
 import xml.etree.ElementTree as ET
+from datetime import datetime
 from pathlib import Path
 
 
 def _fmt(val, decimals=2):
+    """
+    Преобразование чисел в float и str
+    """
     if val is None:
         return ''
     try:
@@ -13,6 +18,9 @@ def _fmt(val, decimals=2):
 
 
 def _make_sub_element(parent, tag, attrib=None, text=None):
+    """
+    Создание под элемента
+    """
     el = ET.SubElement(parent, tag)
     if attrib:
         for k, v in attrib.items():
@@ -24,10 +32,13 @@ def _make_sub_element(parent, tag, attrib=None, text=None):
 
 
 def generate_xml_from_data(header: dict, post_header: dict, items: list, sum_v: dict, output_path: Path) -> None:
+    """
+    Генерация xml файла по схеме
+    """
     root = ET.Element('Файл')
-    root.set('ИдФайл', header.get('ИдФайл', ''))
+    root.set('ИдФайл', header.get('ИдФайл', f'{datetime.now().strftime('%d%m%Y')}_{str(uuid.uuid4()).upper()}'))
     root.set('ВерсПрог', header.get('ВерсПрог', 'xlsx2xml'))
-    root.set('ВерсФорм', header.get('ВерсФорм', ''))
+    root.set('ВерсФорм', header.get('ВерсФорм', '5.03'))
 
     doc = ET.SubElement(root, 'Документ')
     doc.set('КНД', '1115131')
@@ -70,8 +81,8 @@ def generate_xml_from_data(header: dict, post_header: dict, items: list, sum_v: 
 
     doc_podtv = ET.SubElement(sv, 'ДокПодтвОтгрНом')
     doc_podtv.set('РеквНаимДок', header.get('РеквНаимДок', 'Универсальный передаточный документ'))
-    doc_podtv.set('РеквНомерДок', str(header.get('РеквНомерДок', header.get('НомерДок', ''))))
-    doc_podtv.set('РеквДатаДок', header.get('РеквДатаДок', header.get('ДатаДок', '')))
+    doc_podtv.set('РеквНомерДок', str(header.get('НомерДок', '')))
+    doc_podtv.set('РеквДатаДок', header.get('ДатаДок', ''))
 
     sv_pokup = ET.SubElement(sv, 'СвПокуп')
     id_sv_pokup = ET.SubElement(sv_pokup, 'ИдСв')

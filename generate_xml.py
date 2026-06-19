@@ -1,4 +1,3 @@
-import uuid
 import zipfile
 import os
 import shutil
@@ -8,7 +7,6 @@ import logging
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pyopenxlsx import load_workbook
-from datetime import datetime
 from xml_convert import generate_xml_from_data
 from headers import read_header
 from items import parse_items_from_workbook
@@ -16,6 +14,9 @@ from post_headers import read_post_header
 
 
 def rename_shared_strings(zip_path: str) -> None:
+    """
+    Пересборка xlsx файла для корректной работы
+    """
     tmp_dir = zip_path + "_tmp"
     os.makedirs(tmp_dir, exist_ok=True)
     with zipfile.ZipFile(zip_path, 'r') as zin:
@@ -33,22 +34,10 @@ def rename_shared_strings(zip_path: str) -> None:
     shutil.rmtree(tmp_dir)
 
 
-def build_file_id() -> str:
-    uid = str(uuid.uuid4()).upper()
-    date_str = datetime.now().strftime('%Y%m%d')
-    return f'{date_str}_{uid}'
-
-
-def enrich_header(raw: dict) -> dict:
-    raw.setdefault('ИдФайл', build_file_id())
-    raw.setdefault('ВерсФорм', '5.03')
-    raw.setdefault('РеквНаимДок', 'Универсальный передаточный документ')
-    raw.setdefault('РеквНомерДок', raw.get('НомерДок', ''))
-    raw.setdefault('РеквДатаДок', raw.get('ДатаДок', ''))
-    return raw
-
-
 def process_xlsx_file(xlsx_path: Path, output_dir: Path) -> str:
+    """
+    Формирование xml на основе входящего xlsx
+    """
     str_file = str(xlsx_path.absolute())
     if not xlsx_path.is_file():
         raise FileNotFoundError(f"Файл {xlsx_path} не найден")
@@ -57,7 +46,6 @@ def process_xlsx_file(xlsx_path: Path, output_dir: Path) -> str:
     try:
         ws = wb.active
         header_data = read_header(ws)
-        header_data = enrich_header(header_data)
         items_data, sum_data = parse_items_from_workbook(ws)
         post_header_data = read_post_header(ws)
     finally:
@@ -68,6 +56,9 @@ def process_xlsx_file(xlsx_path: Path, output_dir: Path) -> str:
 
 
 def process_files(xlsx_files, output_dir: Path, max_workers: int = None, logger: logging.Logger = None) -> list:
+    """
+    Ассинхронная работа с несколькими файлами
+    """
     if logger is None:
         logger = logging.getLogger(__name__)
     results = []
@@ -98,7 +89,7 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format='%(message)s')
     logger = logging.getLogger(__name__)
-    process_files(xlsx_files, out_dir, max_workers=1, logger=logger)
+    process_files(xlsx_files, out_dir, logger=logger)
 
 
 if __name__ == '__main__':
