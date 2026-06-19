@@ -1,12 +1,12 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext
-import threading
-import queue
 import logging
 import os
+import queue
+import threading
+import tkinter as tk
 import webbrowser
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+from tkinter import filedialog, messagebox, scrolledtext
 
 from generate_xml import process_files
 
@@ -23,7 +23,7 @@ class QueueHandler(logging.Handler):
 class MemoryHandler(logging.Handler):
     def __init__(self):
         super().__init__()
-        self.records: list[logging.LogRecord] = []
+        self.records = []
         self.has_errors = False
 
     def emit(self, record):
@@ -39,9 +39,9 @@ class App:
         self.root.geometry("700x750")
         self.root.resizable(True, True)
 
-        self.xlsx_files: list[str] = []
-        self.output_dir: str = ""
-        self.log_queue: queue.Queue[str] = queue.Queue()
+        self.xlsx_files = []
+        self.output_dir = ""
+        self.log_queue = queue.Queue()
         self.running = False
 
         self._build_ui()

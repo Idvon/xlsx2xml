@@ -1,38 +1,39 @@
-from pyopenxlsx import workbook
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
+
+from pyopenxlsx import Worksheet
 
 # Координаты столбцов товаров в форме
 CODE_FORMS_DICT = {
-    2: 'КодТов',
-    6: 'НомСтр',
-    9: 'НаимТов',
-    18: 'КодВидТов',
-    19: 'ОКЕИ_Тов',
-    23: 'НаимЕдИзм',
-    27: 'КолТов',
-    30: 'ЦенаТов',
-    36: 'СтТовБезНДС',
-    43: 'БезАкциз',
-    47: 'НалСт',
-    50: 'СумНал',
-    54: 'СтТовУчНал',
-    56: 'КодПроисх',
-    59: 'КрНаимСтрПр',
-    61: 'НомТовПрослеж',
-    66: 'ЕдИзмПрослеж',
-    71: 'НаимЕдИзмПрослеж',
-    73: 'КолВЕдПрослеж',
-    74: 'СтТовБезНДСПрослеж',
+    2: "КодТов",
+    6: "НомСтр",
+    9: "НаимТов",
+    18: "КодВидТов",
+    19: "ОКЕИ_Тов",
+    23: "НаимЕдИзм",
+    27: "КолТов",
+    30: "ЦенаТов",
+    36: "СтТовБезНДС",
+    43: "БезАкциз",
+    47: "НалСт",
+    50: "СумНал",
+    54: "СтТовУчНал",
+    56: "КодПроисх",
+    59: "КрНаимСтрПр",
+    61: "НомТовПрослеж",
+    66: "ЕдИзмПрослеж",
+    71: "НаимЕдИзмПрослеж",
+    73: "КолВЕдПрослеж",
+    74: "СтТовБезНДСПрослеж",
 }
 # Координаты столбцов суммы в форме
 CODE_SUM_DICT = {
-    36: 'СтТовБезНДСВсего',
-    50: 'СумНал',
-    54: 'СтТовУчНалВсего',
+    36: "СтТовБезНДСВсего",
+    50: "СумНал",
+    54: "СтТовУчНалВсего",
 }
 
 
-def parse_items_from_workbook(ws: workbook) -> Tuple[List[dict], Dict]:
+def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict]:
     """
     Парсит товары с листа Excel-файла.
     Листы содержат заголовки свойств на row=16 (code row).
@@ -46,7 +47,7 @@ def parse_items_from_workbook(ws: workbook) -> Tuple[List[dict], Dict]:
     for r in range(fixed_row + 1, max_row + 1):
         # Проверка конца товара (строка начинается с "всего к оплате")
         first_col_val = ws.cell(row=r, column=6).value
-        if isinstance(first_col_val, str) and first_col_val == 'Всего к оплате (9)':
+        if isinstance(first_col_val, str) and first_col_val == "Всего к оплате (9)":
             for k in CODE_SUM_DICT.keys():
                 sum_items[CODE_SUM_DICT[k]] = ws.cell(row=r, column=k).value
             break
@@ -54,14 +55,12 @@ def parse_items_from_workbook(ws: workbook) -> Tuple[List[dict], Dict]:
         item = {}
         for c, code in CODE_FORMS_DICT.items():
             val = ws.cell(row=r, column=c).value
-            if (
-                isinstance(val, str) and (
-                    'А' in val.split(' ') or
-                    'УПД' in val.split(' ') or
-                    'Код' in val.split(' ') or
-                    'код' in val.split(' ') or
-                    '' in val.split(' ')
-                )
+            if isinstance(val, str) and (
+                "А" in val.split(" ")
+                or "УПД" in val.split(" ")
+                or "Код" in val.split(" ")
+                or "код" in val.split(" ")
+                or "" in val.split(" ")
             ):
                 break
             if val is not None:
