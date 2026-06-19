@@ -1,0 +1,10 @@
+*.spec
+build
+dist
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.idea
+upd
+data

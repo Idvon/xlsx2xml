@@ -1,0 +1,2 @@
+pyopenxlsx>=1.4.2
+pyinstaller>=6.21.0

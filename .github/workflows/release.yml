@@ -1,0 +1,31 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - run: pip install pyopenxlsx pyinstaller
+
+      - run: pyinstaller --onefile --windowed --name xlsx2xml gui.py
+      - run: pyinstaller --onefile --name xlsx2xml_cli generate_xml.py
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/xlsx2xml.exe
+            dist/xlsx2xml_cli.exe
+          generate_release_notes: true
