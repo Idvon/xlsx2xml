@@ -63,7 +63,7 @@ def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict]:
                 or "" in val.split(" ")
             ):
                 break
-            if val is not None:
+            if val is not None and val != "--":
                 item[code] = val
         if item != {}:
             items.append(item)
