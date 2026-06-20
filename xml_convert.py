@@ -3,6 +3,7 @@ import uuid
 import xml.etree.ElementTree as ET
 from datetime import datetime
 from pathlib import Path
+from typing import List
 
 
 def _fmt(val, decimals=2):
@@ -32,7 +33,7 @@ def _make_sub_element(parent, tag, attrib=None, text=None):
 
 
 def generate_xml_from_data(
-    header: dict, post_header: dict, items: list, sum_v: dict, output_path: Path
+    header: dict, post_header: dict, items: List[dict], sum_v: dict, output_path: Path
 ) -> None:
     """
     Генерация xml файла по схеме
@@ -41,10 +42,11 @@ def generate_xml_from_data(
     root.set(
         "ИдФайл",
         header.get(
-            "ИдФайл", f"{datetime.now().strftime('%d%m%Y')}_{str(uuid.uuid4()).upper()}"
+            "ИдФайл",
+            f"ON_NSCHFDOPPR_IXX-Tra_IXX-Rec_{datetime.now().strftime('%Y%m%d')}_{str(uuid.uuid4()).upper()}_0_0_0_0_0_00",
         ),
     )
-    root.set("ВерсПрог", header.get("ВерсПрог", "xlsx2xml"))
+    root.set("ВерсПрог", header.get("ВерсПрог", "xlsx2xml | Idvon"))
     root.set("ВерсФорм", header.get("ВерсФорм", "5.03"))
 
     doc = ET.SubElement(root, "Документ")
@@ -136,32 +138,50 @@ def generate_xml_from_data(
         row.set("НалСт", item.get("НалСт", ""))
         row.set("СтТовУчНал", _fmt(item.get("СтТовУчНал", ""), 2))
 
-        dop_sved = ET.SubElement(row, "ДопСведТов")
-        _make_sub_element(dop_sved, "КодПроисх", text=str(item.get("КодПроисх", "")))
-        _make_sub_element(
-            dop_sved, "КрНаимСтрПр", text=str(item.get("КрНаимСтрПр", ""))
-        )
-        _make_sub_element(dop_sved, "КодТов", text=str(item.get("КодТов", "")))
-        _make_sub_element(dop_sved, "КодВидТов", text=str(item.get("КодВидТов", "")))
-
-        sved_pros = ET.SubElement(dop_sved, "СведПрослеж")
-        _make_sub_element(
-            sved_pros, "НомТовПрослеж", text=str(item.get("НомТовПрослеж", ""))
-        )
-        _make_sub_element(
-            sved_pros, "ЕдИзмПрослеж", text=str(item.get("ЕдИзмПрослеж", ""))
-        )
-        _make_sub_element(
-            sved_pros, "НаимЕдИзмПрослеж", text=str(item.get("НаимЕдИзмПрослеж", ""))
-        )
-        _make_sub_element(
-            sved_pros, "КолВЕдПрослеж", text=_fmt(item.get("КолВЕдПрослеж", ""), 3)
-        )
-        _make_sub_element(
-            sved_pros,
-            "СтТовБезНДСПрослеж",
-            text=_fmt(item.get("СтТовБезНДСПрослеж", ""), 2),
-        )
+        if any(k in item for k in ("КодТов", "КодПроисх", "КрНаимСтрПр", "КодВидТов")):
+            dop_sved = ET.SubElement(row, "ДопСведТов")
+            dop_sved.set("КодТов", str(item.get("КодТов", "")))
+            dop_sved.set("КодПроисх", str(item.get("КодПроисх", "")))
+            dop_sved.set("КрНаимСтрПр", str(item.get("КрНаимСтрПр", "")))
+            dop_sved.set("КодВидТов", str(item.get("КодВидТов", "")))
+            # _make_sub_element(dop_sved, "КодПроисх", text=str(item.get("КодПроисх", "")))
+            # _make_sub_element(
+            #    dop_sved, "КрНаимСтрПр", text=str(item.get("КрНаимСтрПр", ""))
+            # )
+            # _make_sub_element(dop_sved, "КодТов", text=str(item.get("КодТов", "")))
+            # _make_sub_element(dop_sved, "КодВидТов", text=str(item.get("КодВидТов", "")))
+            if any(
+                k in item
+                for k in (
+                    "НомТовПрослеж",
+                    "ЕдИзмПрослеж",
+                    "НаимЕдИзмПрослеж",
+                    "КолВЕдПрослеж",
+                    "СтТовБезНДСПрослеж",
+                )
+            ):
+                sved_pros = ET.SubElement(dop_sved, "СведПрослеж")
+                _make_sub_element(
+                    sved_pros, "НомТовПрослеж", text=str(item.get("НомТовПрослеж", ""))
+                )
+                _make_sub_element(
+                    sved_pros, "ЕдИзмПрослеж", text=str(item.get("ЕдИзмПрослеж", ""))
+                )
+                _make_sub_element(
+                    sved_pros,
+                    "НаимЕдИзмПрослеж",
+                    text=str(item.get("НаимЕдИзмПрослеж", "")),
+                )
+                _make_sub_element(
+                    sved_pros,
+                    "КолВЕдПрослеж",
+                    text=_fmt(item.get("КолВЕдПрослеж", ""), 3),
+                )
+                _make_sub_element(
+                    sved_pros,
+                    "СтТовБезНДСПрослеж",
+                    text=_fmt(item.get("СтТовБезНДСПрослеж", ""), 2),
+                )
 
         akciz = ET.SubElement(row, "Акциз")
         _make_sub_element(akciz, "БезАкциз", text=str(item.get("БезАкциз", "")))
