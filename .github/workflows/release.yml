@@ -5,27 +5,37 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
 
-      - run: pip install pyopenxlsx pyinstaller
+      - name: Install dependencies
+        run: |
+          pip install pyopenxlsx pyinstaller
 
-      - run: pyinstaller --onefile --windowed --name xlsx2xml gui.py
-      - run: pyinstaller --onefile --name xlsx2xml_cli generate_xml.py
+      - name: Build GUI exe
+        run: pyinstaller --onefile --windowed --name xlsx2xml gui.py
 
-      - uses: softprops/action-gh-release@v2
+      - name: Build CLI exe
+        run: pyinstaller --onefile --name xlsx2xml_cli generate_xml.py
+
+      - name: Verify artifacts exist
+        run: dir dist\
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ github.ref_name }}
           files: |
             dist/xlsx2xml.exe
             dist/xlsx2xml_cli.exe
           generate_release_notes: true
+          fail_on_unmatched_files: true
