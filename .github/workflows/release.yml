@@ -22,10 +22,10 @@ jobs:
           pip install pyopenxlsx pyinstaller
 
       - name: Build GUI exe
-        run: pyinstaller --onefile --windowed --name xlsx2xml --hidden-import generate_xml --hidden-import xml_convert --hidden-import headers --hidden-import items --hidden-import post_headers gui.py
+        run: pyinstaller --onefile --windowed --name xlsx2xml --paths . --hidden-import xml_convert --hidden-import headers --hidden-import items --hidden-import post_headers gui.py
 
       - name: Build CLI exe
-        run: pyinstaller --onefile --name xlsx2xml_cli --hidden-import xml_convert --hidden-import headers --hidden-import items --hidden-import post_headers generate_xml.py
+        run: pyinstaller --onefile --name xlsx2xml_cli --paths . --hidden-import xml_convert --hidden-import headers --hidden-import items --hidden-import post_headers generate_xml.py
 
       - name: Verify artifacts exist
         run: dir dist\
