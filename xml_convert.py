@@ -207,11 +207,9 @@ def generate_xml_from_data(
     podp.set("СпосПодтПолном", "2")
     podp.set("ТипПодпис", "1")
     fio_podp = ET.SubElement(podp, "ФИО")
-    fio_podp.set("Фамилия", header.get("ФамилияПодписант", header.get("Фамилия", " ")))
-    fio_podp.set("Имя", header.get("ИмяПодписант", header.get("Имя", " ")))
-    fio_podp.set(
-        "Отчество", header.get("ОтчествоПодписант", header.get("Отчество", " "))
-    )
+    fio_podp.set("Фамилия", " ")
+    fio_podp.set("Имя", " ")
+    fio_podp.set("Отчество", " ")
 
     tree = ET.ElementTree(root)
     ET.indent(tree, space="  ")

@@ -48,8 +48,8 @@ def process_xlsx_file(xlsx_path: Path, output_dir: Path) -> str:
     try:
         ws = wb.active
         header_data = read_header(ws)
-        items_data, sum_data = parse_items_from_workbook(ws)
-        post_header_data = read_post_header(ws)
+        items_data, sum_data, oplata_row = parse_items_from_workbook(ws)
+        post_header_data = read_post_header(ws, oplata_row)
     finally:
         wb.close()
     output = output_dir / f"{xlsx_path.stem}.xml"

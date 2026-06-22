@@ -1,5 +1,5 @@
 from pyopenxlsx import Worksheet
-from typing import Dict, Any
+from typing import Dict, List
 
 # Множество слов для исключений
 HEADER_WORDS = {
@@ -10,18 +10,16 @@ HEADER_WORDS = {
 COORDS = {
     "1, 17": "НомерДок",
     "1, 26": "ДатаДок",
-    "4, 20": ["Фамилия", "Имя", "Отчество"],
-    "4, 62": "НаимОрг",
     "5, 20": "СвПродАдрТекст",
     "5, 62": "СвПокупАдрТекст",
-    "6, 20": "ИННФЛ",
-    "6, 62": ["ИННЮЛ", "КПП"],
+    "6, 20": "",
+    "6, 62": "",
     "7, 62": ["НаимОКВ", "КодОКВ"],
 }
 
 
 # Выделение ФИО из ячейки "Продавец"
-def name_split(full_name):
+def name_split(full_name) -> List:
     new_name = []
     for name in full_name.split():
         if name not in HEADER_WORDS:
@@ -40,10 +38,18 @@ def read_header(ws: Worksheet) -> Dict:
         v = ws.cell(row=r, column=c).value
         if v is None:
             v = ""
-        elif r == 4 and c == 20:
-            v = name_split(v)
-        elif r == 6 and c == 62:
-            v = [s for s in v.split("/")]
+        elif (r == 6 and c == 20) or (r == 6 and c == 62):
+            v = v.split("/")
+            if range(v) == 2:
+                val = ["ИННЮЛ", "КПП"]
+                results["НаимОрг"] = ws.cell(row=4, column=c).value
+            else:
+                val = "ИННФЛ"
+                v = v[0]
+                val_ip = ["Фамилия", "Имя", "Отчество"]
+                v_ip = ws.cell(row=4, column=c).value
+                v_ip = name_split(v_ip)
+                results.update(dict(zip(val_ip, v_ip)))
         elif r == 7 and c == 62:
             v = [s for s in v.split(", ")]
         if isinstance(val, list):
