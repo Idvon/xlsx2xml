@@ -43,7 +43,8 @@ def generate_xml_from_data(
         "ИдФайл",
         header.get(
             "ИдФайл",
-            f"ON_NSCHFDOPPR_IXX-Tra_IXX-Rec_{datetime.now().strftime('%Y%m%d')}_{str(uuid.uuid4()).upper()}_0_0_0_0_0_00",
+            f"ON_NSCHFDOPPR_IXX-Tra_IXX-Rec_{
+                datetime.now().strftime('%Y%m%d')}_{str(uuid.uuid4()).upper()}_0_0_0_0_0_00",
         ),
     )
     root.set("ВерсПрог", header.get("ВерсПрог", "xlsx2xml | Idvon"))
@@ -68,27 +69,25 @@ def generate_xml_from_data(
 
     sv_prod = ET.SubElement(sv, "СвПрод")
     id_sv_prod = ET.SubElement(sv_prod, "ИдСв")
-    if header.get("ИННФЛ"):
+    if header.get("СвПрод").get("ИННФЛ"):
         sv_ip = ET.SubElement(id_sv_prod, "СвИП")
-        sv_ip.set("ИННФЛ", str(header["ИННФЛ"]))
-        if post_header.get("ОГРНИП"):
-            sv_ip.set("ОГРНИП", str(post_header["ОГРНИП"]))
-        if post_header.get("ДатаОГРНИП"):
-            sv_ip.set("ДатаОГРНИП", post_header["ДатаОГРНИП"])
+        sv_ip.set("ИННФЛ", str(header["СвПрод"]["ИННФЛ"]))
+        sv_ip.set("ОГРНИП", str(post_header["ОГРНИП"]))
+        sv_ip.set("ДатаОГРНИП", post_header["ДатаОГРНИП"])
         fio = ET.SubElement(sv_ip, "ФИО")
-        fio.set("Фамилия", header.get("Фамилия", ""))
-        fio.set("Имя", header.get("Имя", ""))
-        fio.set("Отчество", header.get("Отчество", ""))
+        fio.set("Фамилия", header["СвПрод"]["Фамилия"])
+        fio.set("Имя", header["СвПрод"]["Имя"])
+        fio.set("Отчество", header["СвПрод"]["Отчество"])
     else:
         sv_ul = ET.SubElement(id_sv_prod, "СвЮЛУч")
-        sv_ul.set("НаимОрг", header.get("НаимОрг", ""))
-        sv_ul.set("ИННЮЛ", str(header.get("ИННЮЛ", "")))
-        sv_ul.set("КПП", str(header.get("КПП", "")))
+        sv_ul.set("НаимОрг", header["СвПрод"]["НаимОрг"])
+        sv_ul.set("ИННЮЛ", str(header["СвПрод"]["ИННЮЛ"]))
+        sv_ul.set("КПП", str(header["СвПрод"]["КПП"]))
 
     addr_prod = ET.SubElement(sv_prod, "Адрес")
     addr_info_prod = ET.SubElement(addr_prod, "АдрИнф")
     addr_info_prod.set("КодСтр", "643")
-    addr_info_prod.set("АдрТекст", header.get("СвПродАдрТекст", ""))
+    addr_info_prod.set("АдрТекст", header["СвПрод"]["СвПродАдрТекст"])
     addr_info_prod.set("НаимСтран", "РОССИЯ")
 
     doc_podtv = ET.SubElement(sv, "ДокПодтвОтгрНом")
@@ -100,23 +99,23 @@ def generate_xml_from_data(
 
     sv_pokup = ET.SubElement(sv, "СвПокуп")
     id_sv_pokup = ET.SubElement(sv_pokup, "ИдСв")
-    if header.get("ИННЮЛ"):
-        sv_ul_pok = ET.SubElement(id_sv_pokup, "СвЮЛУч")
-        sv_ul_pok.set("НаимОрг", header.get("НаимОрг", ""))
-        sv_ul_pok.set("ИННЮЛ", str(header["ИННЮЛ"]))
-        sv_ul_pok.set("КПП", str(header.get("КПП", "")))
-    elif header.get("ИННФЛ"):
+    if header.get("СвПокуп").get("ИННФЛ"):
         sv_ip_pok = ET.SubElement(id_sv_pokup, "СвИП")
-        sv_ip_pok.set("ИННФЛ", str(header["ИННФЛ"]))
+        sv_ip_pok.set("ИННФЛ", str(header["СвПокуп"]["ИННФЛ"]))
         fio_pok = ET.SubElement(sv_ip_pok, "ФИО")
-        fio_pok.set("Фамилия", header.get("Фамилия", ""))
-        fio_pok.set("Имя", header.get("Имя", ""))
-        fio_pok.set("Отчество", header.get("Отчество", ""))
+        fio_pok.set("Фамилия", header["СвПокуп"]["Фамилия"])
+        fio_pok.set("Имя", header["СвПокуп"]["Имя"])
+        fio_pok.set("Отчество", header["СвПокуп"]["Отчество"])
+    else:
+        sv_ul_pok = ET.SubElement(id_sv_pokup, "СвЮЛУч")
+        sv_ul_pok.set("НаимОрг", header["СвПокуп"]["НаимОрг"])
+        sv_ul_pok.set("ИННЮЛ", str(header["СвПокуп"]["ИННЮЛ"]))
+        sv_ul_pok.set("КПП", str(header["СвПокуп"]["КПП"]))
 
     addr_pokup = ET.SubElement(sv_pokup, "Адрес")
     addr_info_pokup = ET.SubElement(addr_pokup, "АдрИнф")
     addr_info_pokup.set("КодСтр", "643")
-    addr_info_pokup.set("АдрТекст", header.get("СвПокупАдрТекст", ""))
+    addr_info_pokup.set("АдрТекст", header["СвПокуп"]["СвПокупАдрТекст"])
     addr_info_pokup.set("НаимСтран", "РОССИЯ")
 
     den_izm = ET.SubElement(sv, "ДенИзм")
