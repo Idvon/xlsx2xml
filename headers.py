@@ -59,6 +59,5 @@ def read_header(ws: Worksheet) -> Dict:
                 result.update(dict(zip(val_i, v)))
             else:
                 result[val_i] = v
-        print(results)
         results[key] = result
     return results
