@@ -33,12 +33,13 @@ CODE_SUM_DICT = {
 }
 
 
-def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict]:
+def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict, int]:
     """
     Парсит товары с листа Excel-файла.
     Листы содержат заголовки свойств на row=16 (code row).
     Возвращает структуру: [ { code1: value1, code2: value2, ..., }, ... ].
     """
+    oplata_row: int = 0
     items = []
     sum_items = {}
     max_row = ws.max_row
@@ -48,6 +49,7 @@ def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict]:
         # Проверка конца товара (строка начинается с "всего к оплате")
         first_col_val = ws.cell(row=r, column=6).value
         if isinstance(first_col_val, str) and first_col_val == "Всего к оплате (9)":
+            oplata_row = r
             for k in CODE_SUM_DICT.keys():
                 sum_items[CODE_SUM_DICT[k]] = ws.cell(row=r, column=k).value
             break
@@ -67,4 +69,4 @@ def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict]:
                 item[code] = val
         if item != {}:
             items.append(item)
-    return items, sum_items
+    return items, sum_items, oplata_row

@@ -2,14 +2,10 @@ import re
 
 from pyopenxlsx import Worksheet
 
-# Множество слов для исключений
-HEADER_WORDS = {
-    "ОГРНИП",
-}
 # Координаты свойств нижней шапки формы
 COORDS = {
-    "30, 52": ["ОГРНИП", "ДатаОГРНИП"],
-    "50, 3": "НаимЭконСубСост",
+    "52": ["ОГРНИП", "ДатаОГРНИП"],
+    "3": "НаимЭконСубСост",
 }
 
 
@@ -20,21 +16,21 @@ def find_ogrnip_data(text: str) -> list[str]:
     return [ogrn.group(1) if ogrn else "", date.group(1) if date else ""]
 
 
-def read_post_header(ws: Worksheet) -> dict:
+def read_post_header(ws: Worksheet, start_row: int) -> dict:
     """
     Сборка данных из нижней шапки формы в словарь, где ключ аттрибут для данных
     Возвращает структуру: { key1: value1, key2: [ value2, ..., ], ... }
     """
     results = {}
     for key, val in COORDS.items():
-        r, c = [int(s) for s in key.split(", ")]
-        v = ws.cell(row=r, column=c).value
-        if v is None:
-            v = ""
-        elif r == 30 and c == 52:
+        c = int(key)
+        if c == 52:
+            r = start_row + 5
+            v = ws.cell(row=r, column=c).value
             v = find_ogrnip_data(v)
-        if isinstance(val, list):
             results.update(dict(zip(val, v)))
-        else:
+        elif c == 3:
+            r = start_row + 25
+            v = ws.cell(row=r, column=c).value
             results[val] = v
     return results
