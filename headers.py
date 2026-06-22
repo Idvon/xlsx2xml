@@ -39,8 +39,8 @@ def read_header(ws: Worksheet) -> Dict:
         if v is None:
             v = ""
         elif (r == 6 and c == 20) or (r == 6 and c == 62):
-            v = v.split("/")
-            if range(v) == 2:
+            v = str(v).split("/")
+            if len(v) == 2:
                 val = ["ИННЮЛ", "КПП"]
                 results["НаимОрг"] = ws.cell(row=4, column=c).value
             else:

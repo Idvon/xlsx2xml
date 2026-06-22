@@ -2,10 +2,6 @@ import re
 
 from pyopenxlsx import Worksheet
 
-# Множество слов для исключений
-HEADER_WORDS = {
-    "ОГРНИП",
-}
 # Координаты свойств нижней шапки формы
 COORDS = {
     "52": ["ОГРНИП", "ДатаОГРНИП"],
@@ -27,15 +23,14 @@ def read_post_header(ws: Worksheet, start_row: int) -> dict:
     """
     results = {}
     for key, val in COORDS.items():
-        r = start_row + 5
         c = int(key)
-        v = ws.cell(row=r, column=c).value
-        if v is None:
-            v = ""
-        elif c == 52:
+        if c == 52:
+            r = start_row + 5
+            v = ws.cell(row=r, column=c).value
             v = find_ogrnip_data(v)
-        if isinstance(val, list):
             results.update(dict(zip(val, v)))
-        else:
+        elif c == 3:
+            r = start_row + 25
+            v = ws.cell(row=r, column=c).value
             results[val] = v
     return results
