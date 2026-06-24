@@ -62,7 +62,6 @@ def parse_items_from_workbook(ws: Worksheet) -> Tuple[List[dict], Dict, int]:
                 or "УПД" in val.split(" ")
                 or "Код" in val.split(" ")
                 or "код" in val.split(" ")
-                or "" in val.split(" ")
             ):
                 break
             if val is not None and val != "--":

@@ -88,7 +88,7 @@ def generate_xml_from_data(
     addr_info_prod = ET.SubElement(addr_prod, "АдрИнф")
     addr_info_prod.set("КодСтр", "643")
     addr_info_prod.set("АдрТекст", header["СвПрод"]["СвПродАдрТекст"])
-    addr_info_prod.set("НаимСтран", "РОССИЯ")
+    addr_info_prod.set("НаимСтран", "Российская федерация")
 
     doc_podtv = ET.SubElement(sv, "ДокПодтвОтгрНом")
     doc_podtv.set(
@@ -116,7 +116,7 @@ def generate_xml_from_data(
     addr_info_pokup = ET.SubElement(addr_pokup, "АдрИнф")
     addr_info_pokup.set("КодСтр", "643")
     addr_info_pokup.set("АдрТекст", header["СвПокуп"]["СвПокупАдрТекст"])
-    addr_info_pokup.set("НаимСтран", "РОССИЯ")
+    addr_info_pokup.set("НаимСтран", "Российская федерация")
 
     den_izm = ET.SubElement(sv, "ДенИзм")
     den_izm.set("КодОКВ", header.get("КодОКВ", "643"))
@@ -138,17 +138,15 @@ def generate_xml_from_data(
         row.set("СтТовУчНал", _fmt(item.get("СтТовУчНал", ""), 2))
 
         if any(k in item for k in ("КодТов", "КодПроисх", "КрНаимСтрПр", "КодВидТов")):
+            sv_dt = ET.SubElement(row, "СвДТ")
+            sv_dt.set("КодПроисх", str(item.get("КодПроисх", "")))
+            sv_dt.set("НомерДТ", "Прослеж")
             dop_sved = ET.SubElement(row, "ДопСведТов")
             dop_sved.set("КодТов", str(item.get("КодТов", "")))
-            dop_sved.set("КодПроисх", str(item.get("КодПроисх", "")))
-            dop_sved.set("КрНаимСтрПр", str(item.get("КрНаимСтрПр", "")))
             dop_sved.set("КодВидТов", str(item.get("КодВидТов", "")))
-            # _make_sub_element(dop_sved, "КодПроисх", text=str(item.get("КодПроисх", "")))
-            # _make_sub_element(
-            #    dop_sved, "КрНаимСтрПр", text=str(item.get("КрНаимСтрПр", ""))
-            # )
-            # _make_sub_element(dop_sved, "КодТов", text=str(item.get("КодТов", "")))
-            # _make_sub_element(dop_sved, "КодВидТов", text=str(item.get("КодВидТов", "")))
+            _make_sub_element(
+                dop_sved, "КрНаимСтрПр", text=str(item.get("КрНаимСтрПр", ""))
+            )
             if any(
                 k in item
                 for k in (
@@ -160,27 +158,11 @@ def generate_xml_from_data(
                 )
             ):
                 sved_pros = ET.SubElement(dop_sved, "СведПрослеж")
-                _make_sub_element(
-                    sved_pros, "НомТовПрослеж", text=str(item.get("НомТовПрослеж", ""))
-                )
-                _make_sub_element(
-                    sved_pros, "ЕдИзмПрослеж", text=str(item.get("ЕдИзмПрослеж", ""))
-                )
-                _make_sub_element(
-                    sved_pros,
-                    "НаимЕдИзмПрослеж",
-                    text=str(item.get("НаимЕдИзмПрослеж", "")),
-                )
-                _make_sub_element(
-                    sved_pros,
-                    "КолВЕдПрослеж",
-                    text=_fmt(item.get("КолВЕдПрослеж", ""), 3),
-                )
-                _make_sub_element(
-                    sved_pros,
-                    "СтТовБезНДСПрослеж",
-                    text=_fmt(item.get("СтТовБезНДСПрослеж", ""), 2),
-                )
+                sved_pros.set("НомТовПрослеж", str(item.get("НомТовПрослеж", "")))
+                sved_pros.set("ЕдИзмПрослеж", str(item.get("ЕдИзмПрослеж", "")))
+                sved_pros.set("НаимЕдИзмПрослеж", str(item.get("НаимЕдИзмПрослеж", "")))
+                sved_pros.set("КолВЕдПрослеж", _fmt(item.get("КолВЕдПрослеж", ""), 3))
+                sved_pros.set("СтТовБезНДСПрослеж", _fmt(item.get("СтТовБезНДСПрослеж", ""), 2))
 
         akciz = ET.SubElement(row, "Акциз")
         _make_sub_element(akciz, "БезАкциз", text=str(item.get("БезАкциз", "")))
